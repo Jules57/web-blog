@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http import HttpResponse
 
 
@@ -11,7 +10,7 @@ def index_page(request):
 
 
 def show_article(request, article_id):
-    return HttpResponse(f'Single article.')
+    return HttpResponse(f'Single article with id {article_id = }.')
 
 
 def add_comment(request, article_id):
@@ -47,24 +46,24 @@ def show_profile(request, username):
 
 
 def set_password(request):
-    return HttpResponse(f'Set your password')
+    return HttpResponse('Set your password')
 
 
 def set_userdata(request):
-    return HttpResponse(f'Set your data')
+    return HttpResponse('Set your data')
 
 
 def deactivate(request):
-    return HttpResponse(f'Deactivate your account')
+    return HttpResponse('Deactivate your account')
 
 
 def register(request):
-    return HttpResponse(f'Register your account')
+    return HttpResponse('Register your account')
 
 
 def login(request):
-    return HttpResponse(f'Login')
+    return HttpResponse('Login')
 
 
 def logout(request):
-    return HttpResponse(f'Logout')
+    return HttpResponse('Logout')
