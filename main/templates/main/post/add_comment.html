@@ -1,0 +1,20 @@
+{% extends "main/base.html" %}
+
+{% block title %}Add Comment{% endblock %}
+
+{% block content %}
+    <h1>Leave a Comment</h1>
+    <form action="" method="post">
+        {% csrf_token %}
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="comment">Comment:</label>
+        <textarea id="comment" name="comment" rows="4" cols="50" required></textarea><br>
+
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}
