@@ -1,0 +1,10 @@
+{% extends "main/base.html" %}
+
+{% block title %} Deactivate {% endblock %}
+
+{% block content %}
+    <form action="" method="get">
+        {% csrf_token %}
+        <input type="submit" value="Deactivate account">
+    </form>
+{% endblock %}

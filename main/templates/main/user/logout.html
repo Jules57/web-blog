@@ -1,0 +1,10 @@
+{% extends "main/base.html" %}
+
+{% block title %} Login {% endblock %}
+
+{% block content %}
+    <form action="logout_successful.html" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Logout">
+    </form>
+{% endblock %}

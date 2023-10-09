@@ -1,69 +1,66 @@
 from django.http import HttpResponse
-
-
-def main(request):
-    return HttpResponse('Hey! It\'s your main view!')
+from django.shortcuts import render
 
 
 def index_page(request):
-    return HttpResponse('Hey! It\'s your main view!')
+    return render(request, 'main/post/list.html')
+
+
+def show_about(request):
+    return render(request, 'main/about.html')
 
 
 def show_article(request, article_id):
-    return HttpResponse(f'Single article with id {article_id = }.')
+    return render(request, 'main/post/detail.html')
 
 
 def add_comment(request, article_id):
-    return HttpResponse(f'Leave a comment to article {article_id}.')
+    return render(request, 'main/post/add_comment.html')
 
 
 def create_article(request):
-    return HttpResponse('Create article')
+    return render(request, 'main/post/create_article.html')
 
 
 def update_article(request, article_id):
-    return HttpResponse(f'Update article {article_id}')
+    return render(request, 'main/post/update_article.html')
 
 
 def delete_article(request, article_id):
-    return HttpResponse(f'Delete article {article_id}')
+    return render(request, 'main/post/delete_article.html')
 
 
 def show_topics(request):
-    return HttpResponse('Show topics')
+    return render(request, 'main/topic/topic_list.html')
 
 
 def subscribe_on_topics(request, topic_id):
-    return HttpResponse(f'Subscribe on topic {topic_id}')
+    return render(request, 'main/topic/topic_subscribe.html')
 
 
 def unsubscribe_from_topics(request, topic_id):
-    return HttpResponse(f'Unsubscribe from topic {topic_id}')
+    return render(request, 'main/topic/topic_unsubscribe.html')
 
 
 def show_profile(request, username):
-    return HttpResponse(f'Hello, {username.capitalize()}')
+    return render(request, 'main/user/profile.html', context={username: 'username'})
 
 
 def set_password(request):
-    return HttpResponse('Set your password')
-
-
-def set_userdata(request):
-    return HttpResponse('Set your data')
+    return render(request, 'main/user/set_password.html')
 
 
 def deactivate(request):
-    return HttpResponse('Deactivate your account')
+    return render(request, 'main/user/deactivate.html')
 
 
 def register(request):
-    return HttpResponse('Register your account')
+    return render(request, 'main/user/register.html')
 
 
 def login(request):
-    return HttpResponse('Login')
+    return render(request, 'main/user/login.html')
 
 
 def logout(request):
-    return HttpResponse('Logout')
+    return render(request, 'main/user/logout.html')

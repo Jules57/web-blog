@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link href="{% static "css/blog.css" %}" rel="stylesheet">
+</head>
+<body>
+<header>
+    <h1>Greatest Blog Ever</h1>
+    <nav>
+        <ul>
+            <li><a href="{% url 'home_page' %}">Home</a></li>
+            <li><a href="{% url 'index_page' %}">About</a></li>
+            <li><a href="{% url 'article_detail' 12 %}">Show article</a></li>
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'register' %}">Register</a></li>
+
+        </ul>
+    </nav>
+</header>
+<div id="content">
+    {% block content %}
+    {% endblock %}
+</div>
+<div id="sidebar">
+    <h2>My blog</h2>
+    <p>This is my blog.</p>
+</div>
+</body>
+</html>
