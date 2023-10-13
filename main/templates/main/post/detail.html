@@ -1,34 +1,14 @@
 {% extends "main/base.html" %}
 
-{% block title %} Article {% endblock %}
+
+{% block title %}{{ article.title }}{% endblock %}
 
 {% block content %}
-    <h2>
-        Exploring the Evolving Landscape of Web Development in the Age of Technology Trends
-        Published on March 22, 2023 by Amaranth Burrowes
-    </h2>
-
-    <h3>Introduction:</h3>
-    <p>
-        In today's rapidly advancing technological landscape, web development has become an indispensable part of our
-        lives. As the world becomes increasingly interconnected, it is vital for businesses and individuals alike to
-        stay up-to-date with the latest technology trends in order to thrive in the digital realm. In this article, we
-        will delve into some of the key technology trends shaping the field of web development, offering insights into
-        how these advancements are revolutionizing the way websites and applications are built, and how they are
-        transforming the user experience.
+    <h1>{{ article.title }}</h1>
+    <p class="date">
+        Published {{ article.created_at }} by {{ article.author }}
     </p>
-
-    <h3>Progressive Web Apps (PWAs):</h3>
-
     <p>
-        One of the most significant technology trends in web development is the rise of Progressive Web Apps (PWAs).
-        PWAs combine the best of both worlds, bringing together the responsiveness and versatility of web applications
-        with the user experience of native mobile apps. With features like offline access, push notifications, and
-        seamless responsiveness across devices, PWAs offer an immersive and engaging user experience. As web developers
-        continue to embrace this trend, we can expect to see a surge in the development of PWAs that provide a more
-        app-like experience to users.
+        {{ article.content }}
     </p>
-
-
-
 {% endblock %}

@@ -11,11 +11,10 @@
 </header>
 <nav>
     <ul>
-        <li><a href="{% url 'home_page' %}">Home</a></li>
-        <li><a href="{% url 'index_page' %}">About</a></li>
-        <li><a href="{% url 'article_detail' 12 %}">Show article</a></li>
-        <li><a href="{% url 'login' %}">Login</a></li>
-        <li><a href="{% url 'register' %}">Register</a></li>
+        <li><a href="{% url 'main:home_page' %}">Home</a></li>
+        <li><a href="{% url 'main:index_page' %}">About</a></li>
+        <li><a href="{% url 'main:login' %}">Login</a></li>
+        <li><a href="{% url 'main:register' %}">Register</a></li>
     </ul>
     <form>
         <input type="search" name="q" placeholder="Search query"/>
@@ -23,22 +22,20 @@
     </form>
 </nav>
 
-
-<div id="content">
+<div class="content">
     {% block content %}
     {% endblock %}
 </div>
-<aside>
-    <h2>Related</h2>
-
-    <ul>
-        <li><a href="#">Topic 1</a></li>
-        <li><a href="#">Topic 2</a></li>
-        <li><a href="#">Topic 3</a></li>
-        <li><a href="#">Topic 4</a></li>
-        <li><a href="#">Topic 5</a></li>
-    </ul>
-</aside>
+<div class="container">
+    <div class="sidebar">
+        <h2>Topics</h2>
+        {% for topic in topics %}
+            <h2>
+                {{ topic.title }}
+            </h2>
+        {% endfor %}
+    </div>
+</div>
 <footer>
     <p>©Copyright 2050 by nobody. All rights reversed.</p>
 </footer>
