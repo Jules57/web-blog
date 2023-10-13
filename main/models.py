@@ -25,11 +25,16 @@ class Article(models.Model):
 class Topic(models.Model):
     title = models.CharField(max_length=64)
     description = models.CharField(max_length=255)
-    subscribers = models.ManyToManyField(User, related_name='preferred_topics')
-    notification = models.BooleanField(default=False)
+    subscribers = models.ManyToManyField(User, related_name='preferred_topics', through='Preference')
 
     def __str__(self):
         return self.title
+
+
+class Preference(models.Model):
+    subscriber = models.ForeignKey(User, on_delete=models.CASCADE)
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
+    notification = models.BooleanField(default=False)
 
 
 class Comment(models.Model):
