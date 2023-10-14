@@ -1,17 +1,39 @@
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.shortcuts import render, get_object_or_404
+from .models import Article, Topic
 
 
-def index_page(request):
-    return render(request, 'main/post/list.html')
+def article_list(request):
+    article_list = Article.objects.all()
+    # Pagination with 3 articles per page
+    paginator = Paginator(article_list, 3)
+    page_number = request.GET.get('page', 1)
+    try:
+        articles = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page_number is not an integer deliver the first page
+        articles = paginator.page(1)
+    except EmptyPage:
+        # If page_number is out of range deliver last page of results
+        articles = paginator.page(paginator.num_pages)
+    topics = Topic.objects.all()  # Retrieve topics from your model
+    return render(request,
+                  'main/post/list.html',
+                  {
+                      'articles': articles,
+                      'topics': topics})
 
 
 def show_about(request):
     return render(request, 'main/about.html')
 
 
-def show_article(request, article_id):
-    return render(request, 'main/post/detail.html')
+def article_detail(request, article_id):
+    article = get_object_or_404(Article,
+                                pk=article_id)
+    return render(request,
+                  'main/post/detail.html',
+                  {'article': article})
 
 
 def add_comment(request, article_id):
