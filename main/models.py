@@ -28,7 +28,11 @@ class Topic(models.Model):
     subscribers = models.ManyToManyField(User, related_name='preferred_topics', through='Preference')
 
     def __str__(self):
-        return self.title
+        return f'{self.title} with ID {self.pk}'
+
+    def get_absolute_url(self):
+        return reverse('main:topic_detail',
+                       args=[str(self.pk)])
 
 
 class Preference(models.Model):

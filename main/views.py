@@ -31,9 +31,38 @@ def show_about(request):
 def article_detail(request, article_id):
     article = get_object_or_404(Article,
                                 pk=article_id)
+    comments = article.comment_set.all()
     return render(request,
                   'main/post/detail.html',
-                  {'article': article})
+                  {
+                      'article': article,
+                      'comments': comments})
+
+
+def topic_list(request):
+    topic_list = Topic.objects.all()
+    paginator = Paginator(topic_list, 3)
+    page_number = request.GET.get('page', 1)
+    try:
+        topics = paginator.page(page_number)
+    except PageNotAnInteger:
+        topics = paginator.page(1)
+    except EmptyPage:
+        topics = paginator.page(paginator.num_pages)
+    return render(request,
+                  'main/topic/topic_list.html',
+                  {'topics': topics})
+
+
+def topic_detail(request, topic_id):
+    topic = get_object_or_404(Topic,
+                              pk=topic_id)
+    articles = topic.articles_on_topic.all()
+    return render(request,
+                  'main/topic/topic_detail.html',
+                  {
+                      'topic': topic,
+                      'articles': articles})
 
 
 def add_comment(request, article_id):
@@ -50,10 +79,6 @@ def update_article(request, article_id):
 
 def delete_article(request, article_id):
     return render(request, 'main/post/delete_article.html')
-
-
-def show_topics(request):
-    return render(request, 'main/topic/topic_list.html')
 
 
 def subscribe_on_topics(request, topic_id):

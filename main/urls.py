@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import article_list, article_detail, add_comment, create_article, update_article, show_about
-from .views import delete_article, show_topics, subscribe_on_topics, unsubscribe_from_topics, show_profile
+from .views import article_list, article_detail, add_comment, create_article, update_article, show_about, topic_detail, \
+    topic_list
+from .views import delete_article, subscribe_on_topics, unsubscribe_from_topics, show_profile
 from .views import set_password, deactivate, register, login, logout
 
 app_name = 'main'
@@ -17,7 +18,8 @@ urlpatterns = [
     path('<int:article_id>/delete/',
          delete_article,
          name='delete_article'),
-    path('topics/', show_topics, name='show_topics'),
+    path('topics/', topic_list, name='topic_list'),
+    path('topics/<int:topic_id>/', topic_detail, name='topic_detail'),
     path('topics/<int:topic_id>/subscribe/',
          subscribe_on_topics,
          name='subscribe_topic'),
