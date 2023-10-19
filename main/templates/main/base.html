@@ -6,36 +6,26 @@
     <link href="{% static "css/blog.css" %}" rel="stylesheet">
 </head>
 <body>
+
 <header>
     <h1>WEB TECHNOLOGY BLOG</h1>
 </header>
+
 <nav>
     <ul>
         <li><a href="{% url 'main:home_page' %}">Home</a></li>
+        <li><a href="{% url 'main:topic_list' %}">Topics</a></li>
         <li><a href="{% url 'main:index_page' %}">About</a></li>
         <li><a href="{% url 'main:login' %}">Login</a></li>
         <li><a href="{% url 'main:register' %}">Register</a></li>
     </ul>
-    <form>
-        <input type="search" name="q" placeholder="Search query"/>
-        <input type="submit" value="Go!"/>
-    </form>
 </nav>
 
 <div class="content">
     {% block content %}
     {% endblock %}
 </div>
-<div class="container">
-    <div class="sidebar">
-        <h2>Topics</h2>
-        {% for topic in topics %}
-            <h2>
-                {{ topic.title }}
-            </h2>
-        {% endfor %}
-    </div>
-</div>
+
 <footer>
     <p>©Copyright 2050 by nobody. All rights reversed.</p>
 </footer>

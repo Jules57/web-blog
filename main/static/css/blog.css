@@ -71,8 +71,8 @@ a {
 
 h1 {
     font-weight: normal;
-    border-bottom: 1px solid #bbb;
-    padding: 0 0 10px 0;
+    /*border-bottom: 1px solid #bbb;*/
+    /*padding: 0 0 10px 0;*/
 }
 
 h2 {
@@ -102,9 +102,9 @@ h2 {
 }
 
 p.date {
-    color: #ccc;
+    color: darkslategray;
     font-family: georgia, serif;
-    font-size: 12px;
+    font-size: 14px;
     font-style: italic;
 }
 
@@ -164,11 +164,11 @@ input[type=submit] {
 }
 
 footer {
-    float: left;
+    position: fixed;
+    left: 0;
+    bottom: 0;
     width: 100%;
-    padding: 0px 40px 0px 40px;
-    overflow: hidden;
-    border-top: 20px solid rgba(255, 255, 255, 0.08);
+    background-color: mediumseagreen;
+    color: white;
     text-align: center;
-    background: mediumseagreen;
 }
