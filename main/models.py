@@ -43,7 +43,7 @@ class Preference(models.Model):
 
 class Comment(models.Model):
     message = models.CharField(max_length=400)
-    article = models.ForeignKey(Article, on_delete=models.DO_NOTHING)
+    article = models.ForeignKey(Article, on_delete=models.DO_NOTHING, related_name='comments')
     created_at = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='comments')
     comment = models.ForeignKey('self', null=True, blank=True, on_delete=models.DO_NOTHING,

@@ -31,7 +31,7 @@ def show_about(request):
 def article_detail(request, article_id):
     article = get_object_or_404(Article,
                                 pk=article_id)
-    comments = article.comment_set.all()
+    comments = article.comments.all()
     return render(request,
                   'main/post/detail.html',
                   {
