@@ -9,9 +9,12 @@
         Published {{ article.created_at }} by {{ article.author }}
     </p>
     <p>
-        {{ article.content }}
+        {{ article.content | safe }}
     </p>
+
+
     <h2>Comments:</h2>
+    <br/>
     {% for comment in comments %}
         <div class="comment">
             <p class="info">

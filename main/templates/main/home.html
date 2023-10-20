@@ -1,0 +1,37 @@
+{% extends "main/base.html" %}
+
+{% block title %} Home {% endblock %}
+
+{% block content %}
+
+    <div>
+        <form method="get" action="{% url 'main:home_page' %}">
+            {{ form.as_p }}
+            <input type="submit" value="Search">
+        </form>
+    </div>
+    <h2>Recent Articles </h2>
+    <div id="left">
+        {% for article in articles %}
+            <h2>
+                <a href="{{ article.get_absolute_url }}">
+                    {{ article.title }}
+                </a>
+            </h2>
+            <p class="date">
+                Published {{ article.created_at }} by {{ article.author }}
+            </p>
+            {{ article.content|safe|truncatewords:30|linebreaks }}
+        {% endfor %}
+    </div>
+
+    <div id="right" class="sidenav">
+        <h2>Topics</h2>
+        {% for topic in topics %}
+            <ul>
+                <li><a href="{% url 'main:home_page' %}?topic_id={{ topic.id }}">{{ topic.title }}</a></li>
+            </ul>
+        {% endfor %}
+    </div>
+
+{% endblock %}

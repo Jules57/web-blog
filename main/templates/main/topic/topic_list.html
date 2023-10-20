@@ -6,11 +6,10 @@
     <h2>Topics</h2>
     <p>
         {% for topic in topics %}
-            <p><a href="{{ topic.get_absolute_url }}"> {{ topic.title }}</a></p>
+            <p><a href="{% url 'main:home_page' %}"> {{ topic.title }}</a></p>
             <p>
                 {{ topic.description }}
             </p>
         {% endfor %}
     </p>
-    {% include "pagination.html" with page=topics %}
 {% endblock %}

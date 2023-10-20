@@ -24,7 +24,7 @@ li a:hover {
 
 body {
     margin: 0;
-    padding: 0;
+    padding-bottom: 16px;
     font-family: Arial, sans-serif;
 }
 
@@ -81,9 +81,13 @@ h2 {
 }
 
 .content {
-    float: left;
-    width: 60%;
     padding: 0 0 0 30px;
+}
+
+#left {
+    width: 70%;
+    float: left;
+    padding-bottom: 16rem;
 }
 
 .container {
@@ -91,14 +95,33 @@ h2 {
     justify-content: space-between;
     max-width: 1200px;
     margin: 0 auto;
+
 }
 
-.sidebar {
+.sidenav {
+    /*height: 100%; !* Full-height: remove this if you want "auto" height *!*/
+    width: 20%; /* Set the width of the sidebar */
+    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+    z-index: 1; /* Stay on top */
+    /*top: 0; !* Stay at the top *!*/
+    right: 0;
+    background-color: white;
+    overflow-x: hidden; /* Disable horizontal scroll */
     float: right;
-    width: 30%;
-    background: #efefef;
-    height: 100%;
-    padding: 10px;
+}
+
+/* The navigation menu links */
+.sidenav a {
+    color: #00abff;
+    text-decoration: none;
+    padding: 6px 8px 6px 16px;
+    font-size: 25px;
+    display: block;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover {
+    color: #333;
 }
 
 p.date {
@@ -150,7 +173,7 @@ input[type=submit] {
 
 /* comments */
 .comment {
-    padding: 10px;
+    padding-bottom: 16px;
 }
 
 .comment:nth-child(even) {
