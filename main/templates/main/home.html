@@ -3,13 +3,6 @@
 {% block title %} Home {% endblock %}
 
 {% block content %}
-
-    <div>
-        <form method="get" action="{% url 'main:home_page' %}">
-            {{ form.as_p }}
-            <input type="submit" value="Search">
-        </form>
-    </div>
     <h2>Recent Articles </h2>
     <div id="left">
         {% for article in articles %}
@@ -26,12 +19,36 @@
     </div>
 
     <div id="right" class="sidenav">
-        <h2>Topics</h2>
-        {% for topic in topics %}
-            <ul>
-                <li><a href="{% url 'main:home_page' %}?topic_id={{ topic.id }}">{{ topic.title }}</a></li>
-            </ul>
-        {% endfor %}
+        <div class="search-form">
+            <form method="get" action="{% url 'main:home_page' %}">
+                {{ form.as_p }}
+                <input type="submit" value="Search">
+            </form>
+        </div>
+        {% if topics %}
+            <div class="topics-list">
+                <h2>Topics</h2>
+                <ul>
+                    {% for topic in topics %}
+                        <li><a href="{% url 'main:home_page' %}?topic_id={{ topic.id }}">{{ topic.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
     </div>
+    <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
 
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+    </div>
 {% endblock %}

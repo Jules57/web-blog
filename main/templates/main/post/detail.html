@@ -11,21 +11,49 @@
     <p>
         {{ article.content | safe }}
     </p>
+    <div class="edit-article">
+        <h3><a href="{% url 'main:update_article' article_id=article.pk %}">Edit this article</a></h3>
+        <h3><a href="{% url 'main:delete_article' article_id=article.pk %}">Delete this article</a></h3>
 
-
-    <h2>Comments:</h2>
+    </div>
+    <div class="comment-form">
+        <h1>Leave a Comment</h1>
+        <form action="{% url 'main:add_comment' article_id=article.pk %}" method="post">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <input type="submit" value="Leave a comment">
+        </form>
     <br/>
-    {% for comment in comments %}
-        <div class="comment">
-            <p class="info">
-                Comment {{ forloop.counter }} by {{ comment.author }}
+    <br/>
+    <br/>
+
+    </div>
+
+    <div class="comments">
+        <h2>Comments:</h2>
+        <br/>
+        {% for comment in comments %}
+            <div class="comment">
+                <p class="info">
+                    Comment {{ forloop.counter }} by {{ comment.author }}
+                    <br/>
+                    {{ comment.created_at }}
+                </p>
+                {{ comment.message|linebreaks }}
                 <br/>
-                {{ comment.created_at }}
-            </p>
-            {{ comment.message|linebreaks }}
-            <br/>
-        </div>
-    {% empty %}
-        <p>There are no comments yet.</p>
-    {% endfor %}
+                <div class="delete-comment">
+                    {% if comment.author == request.user %}
+                        <form method="post"
+                              action="{% url 'main:delete_comment' article_id=comment.article.pk comment_pk=comment.pk %}">
+                            {% csrf_token %}
+                            {#                        {{ delete_form.as_p }}#}
+                            <input type="submit" value="Delete">
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p>There are no comments yet.</p>
+        {% endfor %}
+    </div>
 {% endblock %}

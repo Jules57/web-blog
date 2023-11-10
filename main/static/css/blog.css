@@ -133,13 +133,19 @@ p.date {
 
 /* pagination */
 .pagination {
-    margin: 40px 0;
+    margin: 80px 40px;
     font-weight: bold;
+    text-align: left;
+    /*display: flex;*/
+    /*flex-flow: row wrap;*/
+    /*align-items: center;*/
 }
 
 /* forms */
 label {
-    float: left;
+    display: flex;
+    /*flex-direction: column;*/
+    /*flex-wrap: nowrap;*/
     clear: both;
     color: #333;
     margin-bottom: 4px;
@@ -171,9 +177,21 @@ input[type=submit] {
     padding-left: 10px;
 }
 
-/* comments */
-.comment {
-    padding-bottom: 16px;
+.comments {
+    padding: 16px;
+    margin: 30px;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    align-content: flex-start;
+    align-items: flex-start;
+}
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
 }
 
 .comment:nth-child(even) {
@@ -194,4 +212,51 @@ footer {
     background-color: mediumseagreen;
     color: white;
     text-align: center;
+}
+
+/*#right {*/
+/*    float: right;*/
+/*    width: 30%; !* Adjust this width to your preference *!*/
+/*    margin-right: 20px; !* Add margin to separate it from other content *!*/
+/*    padding: 10px; !* Add padding for spacing inside the container *!*/
+/*    margin-bottom: 5px;*/
+/*}*/
+
+#right.sidenav {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    width: 20%;
+}
+
+.search-form {
+    margin-bottom: 10px; /* Add spacing between the search form and topics list */
+}
+
+.topics-list ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+}
+
+.success-message {
+    background-color: #4CAF50; /* Green background color */
+    color: #fff; /* White text color */
+    padding: 20px; /* Padding around the message */
+    border: 1px solid #45a049; /* Green border */
+    margin: 20px;
+    list-style: none;
+}
+
+.error-message {
+    background-color: #f44336; /* Red background color */
+    color: #fff; /* White text color */
+    padding: 20px; /* Padding around the message */
+    border: 1px solid #d32f2f; /* Red border */
+    list-style: none;
+    margin: 20px;
 }
