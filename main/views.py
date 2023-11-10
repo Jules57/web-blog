@@ -1,119 +1,185 @@
-from django.contrib.auth import logout, login
+from django.contrib.auth import login
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
-from django.utils import timezone
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse, reverse_lazy
+from django.views.generic import TemplateView, DetailView, ListView, CreateView, DeleteView, UpdateView
 
-from .forms import AuthenticationForm, RegisterForm, CommentCreateForm, ArticleCreateForm, SearchForm
+from .forms import CommentCreateForm, ArticleCreateForm, SearchForm
 from .models import Article, Topic, Comment
 
 
-def home_page(request):
-    if request.method == 'GET':
-        topic_id = request.GET.get('topic_id')
-        search_query = request.GET.get('search_query')
+class Register(CreateView):
+    template_name = 'main/user/register.html'
+    form_class = UserCreationForm
+    success_url = reverse_lazy('main:home_page')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        login(self.request, self.object)
+        return response
+
+
+class Login(LoginView):
+    template_name = 'main/user/login.html'
+
+    def get_success_url(self):
+        return reverse_lazy('main:home_page')
+
+
+class Logout(LoginRequiredMixin, LogoutView):
+    next_page = '/'
+    login_url = reverse_lazy('main:login')
+
+
+class ArticleListView(ListView):
+    template_name = 'main/home.html'
+    model = Article
+    paginate_by = 7
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        topic_id = self.request.GET.get('topic_id')
+        search_query = self.request.GET.get('search_query')
+
+        articles = Article.objects.all()
 
         if topic_id:
-            topic = Topic.objects.get(pk=topic_id)
-            articles = topic.articles_on_topic.all()
-            return render(request,
-                          'main/home.html',
-                          {
-                              'articles': articles,
-                              'topic': topic})
+            context['topic'] = get_object_or_404(Topic, pk=topic_id)
+            articles = context['topic'].articles_on_topic.all()
 
         if search_query:
-            articles = Article.objects.filter(title__icontains=search_query)
-            return render(request,
-                          'main/home.html',
-                          {'articles': articles})
-        else:
-            articles = Article.objects.all()
-            topics = Topic.objects.all()
-            form = SearchForm()
-            return render(request,
-                          'main/home.html', {
-                              'form': form,
-                              'articles': articles,
-                              'topics': topics})
+            articles = articles.filter(title__icontains=search_query)
+
+        context['articles'] = articles
+        context['topics'] = Topic.objects.all()
+        context['form'] = SearchForm()
+
+        return context
 
 
-def show_about(request):
-    return render(request, 'main/about.html')
+class AboutView(TemplateView):
+    template_name = 'main/about.html'
 
 
-@login_required(login_url='/login/')
-def article_detail(request, article_id):
-    article = get_object_or_404(Article, pk=article_id)
-    comments = article.comments.all()
-    return render(request,
-                  'main/post/detail.html',
-                  {
-                      'article': article,
-                      'comments': comments})
+class ArticleDetailView(LoginRequiredMixin, DetailView):
+    model = Article
+    pk_url_kwarg = 'article_id'
+    template_name = 'main/post/detail.html'
+    context_object_name = 'article'
+    login_url = reverse_lazy('main:login')
+    extra_context = {
+        'comment_form': CommentCreateForm()}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        article = Article.objects.get(pk=self.object.pk)
+        context['comments'] = article.comments.all()
+        return context
 
 
-def topic_list(request):
-    topics = Topic.objects.all()
-    return render(request,
-                  'main/topic/topic_list.html',
-                  {'topics': topics})
+class TopicListView(ListView):
+    context_object_name = 'topics'
+    model = Topic
+    template_name = 'main/topic/topic_list.html'
+    paginate_by = 6
 
 
-@login_required(login_url='/login/')
-def add_comment(request, article_id):
-    article = get_object_or_404(Article, pk=article_id)
-    if request.method == 'POST':
-        comment_form = CommentCreateForm(request.POST)
-        if comment_form.is_valid():
-            # Save the comment with the associated article and author
-            author = request.user
-            message = comment_form.cleaned_data['message']
-            Comment.objects.create(message=message, author=author, article=article)
-            return redirect(reverse('main:article_detail', args=[article_id]))
-    else:
-        comment_form = CommentCreateForm()
-        return render(request,
-                      'main/post/add_comment.html',
-                      {
-                          'article': article,
-                          'comment_form': comment_form})
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    login_url = reverse_lazy('main:login')
+    model = Comment
+    pk_url_kwarg = 'article_id'
+    form_class = CommentCreateForm
+    http_method_names = ['post']
+
+    def get_success_url(self):
+        article = self.object.article
+        return article.get_absolute_url()
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'request': self.request,
+            'article_id': self.kwargs['article_id'],
+            'user': self.request.user
+        })
+        return kwargs
+
+    def form_invalid(self, form):
+        return HttpResponseRedirect(self.success_url)
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.article = Article.objects.get(pk=form.article_id)
+        obj.author = form.user
+        obj.message = form.cleaned_data['message']
+        obj.save()
+        messages.success(self.request, f'Your comment has been successfully added.')
+        return super().form_valid(form=form)
 
 
-@login_required(login_url='/login/')
-def create_article(request):
-    if request.method == 'POST':
-        form = ArticleCreateForm(request.POST)
-        if form.is_valid():
-            # Create and save the article
-            title = form.cleaned_data['title']
-            content = form.cleaned_data['content']
-            topics = form.cleaned_data['topics']
-            author = request.user
-            created_at = timezone.now()
-            new_article = Article(title=title, content=content, author=author, created_at=created_at)
-            new_article.save()
+class CommentDeleteView(LoginRequiredMixin, DeleteView):
+    model = Comment
+    login_url = reverse_lazy('main:login')
+    pk_url_kwarg = 'comment_pk'
 
-            # Add the selected topics to the new article
-            new_article.topics.set(topics)
-            return redirect(reverse('main:home_page'))
-
-    else:
-        form = ArticleCreateForm()
-        return render(request, 'main/post/create_article.html', {'form': form})
-    return render(request, 'main/post/create_article.html')
+    def get_success_url(self):
+        article = self.object.article
+        return article.get_absolute_url()
 
 
-@login_required(login_url='/login/')
-def update_article(request, article_id):
-    return render(request, 'main/post/update_article.html')
+class ArticleCreateView(LoginRequiredMixin, CreateView):
+    login_url = reverse_lazy('main:login')
+    model = Article
+    form_class = ArticleCreateForm
+    http_method_names = ['get', 'post']
+    template_name = 'main/post/create_article.html'
+
+    def get_success_url(self):
+        return reverse_lazy('main:home_page')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'request': self.request,
+            'user': self.request.user
+        })
+        return kwargs
+
+    def form_invalid(self, form):
+        return HttpResponseRedirect(self.success_url)
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.author = self.request.user
+        obj.save()
+        # Set the many-to-many relationship for topics
+        obj.topics.set(form.cleaned_data['topics'])
+        messages.success(self.request, f'Your article has been successfully added.')
+        return super().form_valid(form=form)
 
 
-@login_required(login_url='/login/')
-def delete_article(request, article_id):
-    return render(request, 'main/post/delete_article.html')
+class ArticleUpdateView(LoginRequiredMixin, UpdateView):
+    model = Article
+    fields = ['title', 'content', 'topics']
+    template_name = 'main/post/update_article.html'
+    pk_url_kwarg = 'article_id'
+    login_url = reverse_lazy('main:login')
+
+
+class ArticleDeleteView(LoginRequiredMixin, DeleteView):
+    model = Article
+    login_url = reverse_lazy('main:login')
+    pk_url_kwarg = 'article_id'
+    template_name = 'main/post/article_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('main:home_page')
 
 
 def subscribe_on_topics(request, topic_id):
@@ -136,32 +202,3 @@ def set_password(request):
 
 def deactivate(request):
     return render(request, 'main/user/deactivate.html')
-
-
-def register(request):
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Registration successful.')
-            return reverse('main:home_page')
-        messages.error(request, 'Unsuccessful registration. Invalid data.')
-    form = RegisterForm()
-    return render(request, 'main/user/register.html', {'form': form})
-
-
-def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request.POST)
-        if form.is_valid():
-            login(request, form.user)
-            return HttpResponseRedirect('/')
-    else:
-        form = AuthenticationForm()
-        return render(request, 'main/user/login.html', {'form': form})
-
-
-def logout_view(request):
-    logout(request)
-    return redirect(reverse('main:home_page'))
