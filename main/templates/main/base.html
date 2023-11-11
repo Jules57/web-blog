@@ -15,11 +15,29 @@
     <ul>
         <li><a href="{% url 'main:home_page' %}">Home</a></li>
         <li><a href="{% url 'main:topic_list' %}">Topics</a></li>
-        <li><a href="{% url 'main:index_page' %}">About</a></li>
-        <li><a href="{% url 'main:login' %}">Login</a></li>
-        <li><a href="{% url 'main:register' %}">Register</a></li>
+        <li><a href="{% url 'main:about_page' %}">About</a></li>
+        <li><a href="{% url 'main:create_article' %}">Create article</a></li>
+        {% if request.user.is_authenticated %}
+            <li><a href="{% url 'main:logout' %}">Logout</a></li>
+        {% else %}
+            <li><a href="{% url 'main:login' %}">Login</a></li>
+            <li><a href="{% url 'main:register' %}">Register</a></li>
+        {% endif %}
     </ul>
 </nav>
+<div>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags == 'success' %} class="success-message"{% elif message.tags == 'error' %}
+                                                      class="error-message"{% endif %}>
+                    {{ message }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+
 
 <div class="content">
     {% block content %}

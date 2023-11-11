@@ -1,84 +1,185 @@
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth import login
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView, LogoutView
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from .models import Article, Topic
+from django.urls import reverse, reverse_lazy
+from django.views.generic import TemplateView, DetailView, ListView, CreateView, DeleteView, UpdateView
+
+from .forms import CommentCreateForm, ArticleCreateForm, SearchForm
+from .models import Article, Topic, Comment
 
 
-def article_list(request):
-    article_list = Article.objects.all()
-    # Pagination with 3 articles per page
-    paginator = Paginator(article_list, 3)
-    page_number = request.GET.get('page', 1)
-    try:
-        articles = paginator.page(page_number)
-    except PageNotAnInteger:
-        # If page_number is not an integer deliver the first page
-        articles = paginator.page(1)
-    except EmptyPage:
-        # If page_number is out of range deliver last page of results
-        articles = paginator.page(paginator.num_pages)
-    topics = Topic.objects.all()  # Retrieve topics from your model
-    return render(request,
-                  'main/post/list.html',
-                  {
-                      'articles': articles,
-                      'topics': topics})
+class Register(CreateView):
+    template_name = 'main/user/register.html'
+    form_class = UserCreationForm
+    success_url = reverse_lazy('main:home_page')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        login(self.request, self.object)
+        return response
 
 
-def show_about(request):
-    return render(request, 'main/about.html')
+class Login(LoginView):
+    template_name = 'main/user/login.html'
+
+    def get_success_url(self):
+        return reverse_lazy('main:home_page')
 
 
-def article_detail(request, article_id):
-    article = get_object_or_404(Article,
-                                pk=article_id)
-    comments = article.comments.all()
-    return render(request,
-                  'main/post/detail.html',
-                  {
-                      'article': article,
-                      'comments': comments})
+class Logout(LoginRequiredMixin, LogoutView):
+    next_page = '/'
+    login_url = reverse_lazy('main:login')
 
 
-def topic_list(request):
-    topic_list = Topic.objects.all()
-    paginator = Paginator(topic_list, 3)
-    page_number = request.GET.get('page', 1)
-    try:
-        topics = paginator.page(page_number)
-    except PageNotAnInteger:
-        topics = paginator.page(1)
-    except EmptyPage:
-        topics = paginator.page(paginator.num_pages)
-    return render(request,
-                  'main/topic/topic_list.html',
-                  {'topics': topics})
+class ArticleListView(ListView):
+    template_name = 'main/home.html'
+    model = Article
+    paginate_by = 7
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        topic_id = self.request.GET.get('topic_id')
+        search_query = self.request.GET.get('search_query')
+
+        articles = Article.objects.all()
+
+        if topic_id:
+            context['topic'] = get_object_or_404(Topic, pk=topic_id)
+            articles = context['topic'].articles_on_topic.all()
+
+        if search_query:
+            articles = articles.filter(title__icontains=search_query)
+
+        context['articles'] = articles
+        context['topics'] = Topic.objects.all()
+        context['form'] = SearchForm()
+
+        return context
 
 
-def topic_detail(request, topic_id):
-    topic = get_object_or_404(Topic,
-                              pk=topic_id)
-    articles = topic.articles_on_topic.all()
-    return render(request,
-                  'main/topic/topic_detail.html',
-                  {
-                      'topic': topic,
-                      'articles': articles})
+class AboutView(TemplateView):
+    template_name = 'main/about.html'
 
 
-def add_comment(request, article_id):
-    return render(request, 'main/post/add_comment.html')
+class ArticleDetailView(LoginRequiredMixin, DetailView):
+    model = Article
+    pk_url_kwarg = 'article_id'
+    template_name = 'main/post/detail.html'
+    context_object_name = 'article'
+    login_url = reverse_lazy('main:login')
+    extra_context = {
+        'comment_form': CommentCreateForm()}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        article = Article.objects.get(pk=self.object.pk)
+        context['comments'] = article.comments.all()
+        return context
 
 
-def create_article(request):
-    return render(request, 'main/post/create_article.html')
+class TopicListView(ListView):
+    context_object_name = 'topics'
+    model = Topic
+    template_name = 'main/topic/topic_list.html'
+    paginate_by = 6
 
 
-def update_article(request, article_id):
-    return render(request, 'main/post/update_article.html')
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    login_url = reverse_lazy('main:login')
+    model = Comment
+    pk_url_kwarg = 'article_id'
+    form_class = CommentCreateForm
+    http_method_names = ['post']
+
+    def get_success_url(self):
+        article = self.object.article
+        return article.get_absolute_url()
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'request': self.request,
+            'article_id': self.kwargs['article_id'],
+            'user': self.request.user
+        })
+        return kwargs
+
+    def form_invalid(self, form):
+        return HttpResponseRedirect(self.success_url)
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.article = Article.objects.get(pk=form.article_id)
+        obj.author = form.user
+        obj.message = form.cleaned_data['message']
+        obj.save()
+        messages.success(self.request, f'Your comment has been successfully added.')
+        return super().form_valid(form=form)
 
 
-def delete_article(request, article_id):
-    return render(request, 'main/post/delete_article.html')
+class CommentDeleteView(LoginRequiredMixin, DeleteView):
+    model = Comment
+    login_url = reverse_lazy('main:login')
+    pk_url_kwarg = 'comment_pk'
+
+    def get_success_url(self):
+        article = self.object.article
+        return article.get_absolute_url()
+
+
+class ArticleCreateView(LoginRequiredMixin, CreateView):
+    login_url = reverse_lazy('main:login')
+    model = Article
+    form_class = ArticleCreateForm
+    http_method_names = ['get', 'post']
+    template_name = 'main/post/create_article.html'
+
+    def get_success_url(self):
+        return reverse_lazy('main:home_page')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'request': self.request,
+            'user': self.request.user
+        })
+        return kwargs
+
+    def form_invalid(self, form):
+        return HttpResponseRedirect(self.success_url)
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.author = self.request.user
+        obj.save()
+        # Set the many-to-many relationship for topics
+        obj.topics.set(form.cleaned_data['topics'])
+        messages.success(self.request, f'Your article has been successfully added.')
+        return super().form_valid(form=form)
+
+
+class ArticleUpdateView(LoginRequiredMixin, UpdateView):
+    model = Article
+    fields = ['title', 'content', 'topics']
+    template_name = 'main/post/update_article.html'
+    pk_url_kwarg = 'article_id'
+    login_url = reverse_lazy('main:login')
+
+
+class ArticleDeleteView(LoginRequiredMixin, DeleteView):
+    model = Article
+    login_url = reverse_lazy('main:login')
+    pk_url_kwarg = 'article_id'
+    template_name = 'main/post/article_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('main:home_page')
 
 
 def subscribe_on_topics(request, topic_id):
@@ -89,25 +190,15 @@ def unsubscribe_from_topics(request, topic_id):
     return render(request, 'main/topic/topic_unsubscribe.html')
 
 
+@login_required(login_url='/login/')
 def show_profile(request, username):
-    return render(request, 'main/user/profile.html', context={username: 'username'})
+    return render(request, 'main/user/profile.html', {'username': username})
 
 
+@login_required(login_url='/login/')
 def set_password(request):
     return render(request, 'main/user/set_password.html')
 
 
 def deactivate(request):
     return render(request, 'main/user/deactivate.html')
-
-
-def register(request):
-    return render(request, 'main/user/register.html')
-
-
-def login(request):
-    return render(request, 'main/user/login.html')
-
-
-def logout(request):
-    return render(request, 'main/user/logout.html')

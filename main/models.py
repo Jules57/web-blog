@@ -30,10 +30,6 @@ class Topic(models.Model):
     def __str__(self):
         return f'{self.title} with ID {self.pk}'
 
-    def get_absolute_url(self):
-        return reverse('main:topic_detail',
-                       args=[str(self.pk)])
-
 
 class Preference(models.Model):
     subscriber = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -43,7 +39,7 @@ class Preference(models.Model):
 
 class Comment(models.Model):
     message = models.CharField(max_length=400)
-    article = models.ForeignKey(Article, on_delete=models.DO_NOTHING, related_name='comments')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments')
     created_at = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='comments')
     comment = models.ForeignKey('self', null=True, blank=True, on_delete=models.DO_NOTHING,
@@ -51,3 +47,6 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.message
+
+    class Meta:
+        ordering = ['-created_at']
