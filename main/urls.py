@@ -1,4 +1,6 @@
-from django.urls import path
+from django.urls import path, include
+
+from .API.urls import router
 from .views import AboutView, ArticleDetailView, TopicListView, ArticleListView, CommentCreateView, CommentDeleteView, \
     ArticleCreateView, ArticleUpdateView, Login, Register, Logout
 from .views import ArticleDeleteView, subscribe_on_topics, unsubscribe_from_topics, show_profile
@@ -6,7 +8,9 @@ from .views import set_password, deactivate
 
 app_name = 'main'
 
+
 urlpatterns = [
+    path('api/', include(router.urls)),
     path('', ArticleListView.as_view(), name='home_page'),
     path('about/', AboutView.as_view(), name='about_page'),
     path('<int:article_id>/', ArticleDetailView.as_view(), name='article_detail'),
