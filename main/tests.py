@@ -95,4 +95,3 @@ class MySeleniumTests(StaticLiveServerTestCase):
         password_input2 = self.selenium.find_element(By.NAME, "password2")
         password_input2.send_keys("SuperSecret1!")
         self.selenium.find_element(By.XPATH, '//input[@value="Register"]').click()
-

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+from rest_framework.authentication import TokenAuthentication
 
 
 class Article(models.Model):
@@ -50,3 +51,7 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class UserTokenAuthentication(TokenAuthentication):
+    keyword = 'Bearer'
