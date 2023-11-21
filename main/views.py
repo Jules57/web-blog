@@ -3,10 +3,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.models import User
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView, DetailView, ListView, CreateView, DeleteView, UpdateView
 
 from .forms import CommentCreateForm, ArticleCreateForm, SearchForm
@@ -190,15 +191,52 @@ def unsubscribe_from_topics(request, topic_id):
     return render(request, 'main/topic/topic_unsubscribe.html')
 
 
-@login_required(login_url='/login/')
-def show_profile(request, username):
-    return render(request, 'main/user/profile.html', {'username': username})
+class UserDetailView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = 'main/user/profile.html'
+    context_object_name = 'user'
+    login_url = reverse_lazy('main:login')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = User.objects.get(pk=self.object.pk)
+        topics = user.preferred_topics.all()[:3]
+        context['topics'] = topics
+
+        articles = user.articles.all()
+        context['articles'] = articles
+
+        return context
 
 
-@login_required(login_url='/login/')
-def set_password(request):
-    return render(request, 'main/user/set_password.html')
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    fields = ['first_name', 'last_name', 'email']
+    template_name = 'main/user/set_userdata.html'
+    login_url = reverse_lazy('main:login')
+
+    def get_success_url(self):
+        return reverse_lazy('main:show_profile', kwargs={'pk': self.object.pk})
 
 
-def deactivate(request):
-    return render(request, 'main/user/deactivate.html')
+class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    template_name = 'main/user/set_password.html'
+    login_url = reverse_lazy('main:login')
+
+    def get_success_url(self):
+        return reverse_lazy('main:show_profile', kwargs={'pk': self.request.user.pk})
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Your password was successfully updated!')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct the error below.')
+        return super().form_invalid(form)
+
+
+class UserDeleteView(LoginRequiredMixin, DeleteView):
+    model = User
+    login_url = reverse_lazy('main:login')
+    template_name = 'main/user/confirm_delete.html'
+    success_url = reverse_lazy('main:home_page')

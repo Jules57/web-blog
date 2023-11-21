@@ -12,8 +12,10 @@
         {{ article.content | safe }}
     </p>
     <div class="edit-article">
-        <h3><a href="{% url 'main:update_article' article_id=article.pk %}">Edit this article</a></h3>
-        <h3><a href="{% url 'main:delete_article' article_id=article.pk %}">Delete this article</a></h3>
+        {% if request.user == article.author %}
+            <h3><a href="{% url 'main:update_article' article_id=article.pk %}">Edit this article</a></h3>
+            <h3><a href="{% url 'main:delete_article' article_id=article.pk %}">Delete this article</a></h3>
+        {% endif %}
 
     </div>
     <div class="comment-form">
@@ -23,9 +25,9 @@
             {{ comment_form.as_p }}
             <input type="submit" value="Leave a comment">
         </form>
-    <br/>
-    <br/>
-    <br/>
+        <br/>
+        <br/>
+        <br/>
 
     </div>
 

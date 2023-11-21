@@ -3,7 +3,7 @@
 {% block title %} Deactivate {% endblock %}
 
 {% block content %}
-    <form action="" method="get">
+    <form action="{% url 'main:deactivate_profile' user.pk %}" method="post">
         {% csrf_token %}
         <input type="submit" value="Deactivate account">
     </form>
