@@ -19,6 +19,8 @@
         <li><a href="{% url 'main:create_article' %}">Create article</a></li>
         {% if request.user.is_authenticated %}
             <li><a href="{% url 'main:logout' %}">Logout</a></li>
+            <li><a href="{% url 'main:show_profile' user.pk %}">Profile</a></li>
+
         {% else %}
             <li><a href="{% url 'main:login' %}">Login</a></li>
             <li><a href="{% url 'main:register' %}">Register</a></li>

@@ -1,10 +1,36 @@
-
 {% extends "main/base.html" %}
 
 {% block title %} Your Profile {% endblock %}
 
 {% block content %}
     <h1>Your Profile</h1>
-    <p>Your profile is under construction</p>
+    <div>
+        <p>Username: {{ user.username }}</p>
+        <p>First name: {{ user.first_name }}</p>
+        <p>Last name: {{ user.last_name }}</p>
+        {% if topics %}
+            {% for topic in topic %}
+                <p> Topic: {{ topic.title }}</p>
+            {% endfor %}
+        {% else %}
+            <p>You haven't subscribed to any topic yet.</p>
+        {% endif %}
+    </div>
+    <div>
+        {% if articles %}
+            {% for article in articles %}
+                <p>Title:<a href="{{ article.get_absolute_url }}"> {{ article.title }}</a></p>
+                <p>Content: {{ article.content|safe|truncatewords:30|linebreaks }}</p>
+                <p>Published at: {{ article.updated_at }}</p>
+            {% endfor %}
+        {% else %}
+            <p> You haven't created any articles yet. </p>
+            <p> Feel inspired? <a href="{% url 'main:create_article' %}">Create a new article right now!</a></p>
+        {% endif %}
+    </div>
+
+    <div class="link-button"><a href="{% url 'main:set_userdata' user.pk %}">Update Profile</a></div>
+    <div class="link-button"><a href="{% url 'main:set_password' user.pk %}">Change Password</a></div>
+    <div class="link-button"><a href="{% url 'main:deactivate_profile' user.pk %}">Delete Account</a></div>
 
 {% endblock %}
