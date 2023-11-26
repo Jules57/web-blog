@@ -1,16 +1,15 @@
 from django.contrib.auth import login
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, DetailView, ListView, CreateView, DeleteView, UpdateView
 
-from .forms import CommentCreateForm, ArticleCreateForm, SearchForm
+from .forms import CommentCreateForm, ArticleCreateForm, SearchForm, TopicSubscriptionForm
 from .models import Article, Topic, Comment
 
 
@@ -89,6 +88,7 @@ class TopicListView(ListView):
     model = Topic
     template_name = 'main/topic/topic_list.html'
     paginate_by = 6
+    extra_context = {'form': TopicSubscriptionForm}
 
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
@@ -183,12 +183,41 @@ class ArticleDeleteView(LoginRequiredMixin, DeleteView):
         return reverse_lazy('main:home_page')
 
 
-def subscribe_on_topics(request, topic_id):
-    return render(request, 'main/topic/topic_subscribe.html')
+class TopicSubscribeView(LoginRequiredMixin, UpdateView):
+    # template_name = 'main/topic/topic_subscribe.html'
+    login_url = reverse_lazy('main:login')
+    model = Topic
+    pk_url_kwarg = 'topic_id'
+    form_class = TopicSubscriptionForm
+
+    def get_success_url(self):
+        return reverse_lazy('main:show_profile', kwargs={'pk': self.request.user.pk})
+
+    def form_valid(self, form):
+        topic = form.save(commit=False)
+        user = self.request.user
+        topic.save()
+        topic.subscribers.set([user])
+        messages.success(self.request, f'You have successfully subscribed on topic {topic.title}.')
+        return super().form_valid(form=form)
 
 
-def unsubscribe_from_topics(request, topic_id):
-    return render(request, 'main/topic/topic_unsubscribe.html')
+class TopicUnsubscribeView(LoginRequiredMixin, UpdateView):
+    # template_name = 'main/topic/topic_unsubscribe.html'
+    login_url = reverse_lazy('main:login')
+    pk_url_kwarg = 'topic_id'
+    form_class = TopicSubscriptionForm
+
+    def get_success_url(self):
+        return reverse_lazy('main:show_profile', {'pk': self.request.user.pk})
+
+    def form_valid(self, form):
+        topic = form.save(commit=False)
+        user = self.request.user
+        topic.save()
+        topic.subscribers.set(user)
+        messages.success(self.request, f'You have successfully unsubscribed from topic {topic.title}.')
+        return super().form_valid(form=form)
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):

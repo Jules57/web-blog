@@ -3,7 +3,7 @@ from django.urls import path, include
 from .API.urls import router
 from .views import AboutView, ArticleDetailView, TopicListView, ArticleListView, CommentCreateView, CommentDeleteView, \
     ArticleCreateView, ArticleUpdateView, Login, Register, Logout, UserDetailView, UserUpdateView
-from .views import ArticleDeleteView, subscribe_on_topics, unsubscribe_from_topics
+from .views import ArticleDeleteView, TopicSubscribeView, TopicUnsubscribeView
 from .views import UserPasswordChangeView, UserDeleteView
 
 app_name = 'main'
@@ -25,10 +25,10 @@ urlpatterns = [
          name='delete_article'),
     path('topics/', TopicListView.as_view(), name='topic_list'),
     path('topics/<int:topic_id>/subscribe/',
-         subscribe_on_topics,
+         TopicSubscribeView.as_view(),
          name='subscribe_topic'),
     path('topics/<int:topic_id>/unsubscribe/',
-         unsubscribe_from_topics,
+         TopicUnsubscribeView.as_view(),
          name='unsubscribe_topic'),
     path('profile/<int:pk>/',
          UserDetailView.as_view(),

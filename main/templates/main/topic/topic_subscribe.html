@@ -4,5 +4,9 @@
 
 {% block content %}
     <h1>Subscribe on this topic</h1>
-    <input type="submit" value="Subscribe"></input>
+    <form>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Subscribe">
+    </form>
 {% endblock %}

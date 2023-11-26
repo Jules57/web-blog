@@ -1,8 +1,12 @@
 {% extends "main/base.html" %}
 
-{% block title %}Unsubscribe{% endblock %}
+{% block title %}Subscribe{% endblock %}
 
 {% block content %}
-    <h1>Unsubscribe from this topic</h1>
-    <input type="submit" value="Unsubscribe"></input>
+    <h1>Subscribe on this topic</h1>
+    <form>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Unsubscribe">
+    </form>
 {% endblock %}

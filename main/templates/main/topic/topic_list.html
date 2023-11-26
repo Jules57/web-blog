@@ -6,10 +6,24 @@
     <h2>Topics</h2>
     <p>
         {% for topic in topics %}
-            <p><a href="{% url 'main:home_page' %}"> {{ topic.title }}</a></p>
+            <h1>{{ topic.title }}</h1>
             <p>
                 {{ topic.description | truncatewords:20 }}
             </p>
+            {% if request.user in topic.subsribers.all %}
+                <form action="{% url 'main:unsubscribe_topic' topic.pk %}" method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="submit" value="Unsubscribe">
+                </form>
+
+            {% else %}
+                <form action="{% url 'main:subscribe_topic' topic.pk %}" method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="submit" value="Subscribe">
+                </form>
+            {% endif %}
         {% endfor %}
     </p>
     <div class="pagination">

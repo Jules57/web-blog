@@ -1,4 +1,5 @@
 {% extends "main/base.html" %}
+{% load article %}
 
 {% block title %} Home {% endblock %}
 
@@ -6,15 +7,7 @@
     <h2>Recent Articles </h2>
     <div id="left">
         {% for article in articles %}
-            <h2>
-                <a href="{{ article.get_absolute_url }}">
-                    {{ article.title }}
-                </a>
-            </h2>
-            <p class="date">
-                Published {{ article.created_at }} by {{ article.author }}
-            </p>
-            {{ article.content|safe|truncatewords:30|linebreaks }}
+            {% render_article article %}
         {% endfor %}
     </div>
 
