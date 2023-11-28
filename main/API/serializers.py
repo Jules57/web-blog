@@ -6,14 +6,14 @@ from main.models import Article, Comment, Topic
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'password']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
 
 class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
-        fields = ['id', 'title', 'description']
+        fields = ['id', 'title', 'description', 'subscribers']
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -21,7 +21,8 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'author', 'topics']
+        fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'topics']
+        read_only_fields = ['author']
 
 
 class CommentSerializer(serializers.ModelSerializer):
