@@ -23,6 +23,7 @@
         <form action="{% url 'main:add_comment' article_id=article.pk %}" method="post">
             {% csrf_token %}
             {{ comment_form.as_p }}
+{#            <input type="hidden" value="{{ article.id }}" name="article">#}
             <input type="submit" value="Leave a comment">
         </form>
         <br/>
