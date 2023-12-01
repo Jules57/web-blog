@@ -1,11 +1,9 @@
 from rest_framework import permissions
 
 
-class IsAuthorOrReadOnly(permissions.BasePermission):
+class IsAuthorOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        # Allow GET, HEAD, and OPTIONS requests
-        if request.method in permissions.SAFE_METHODS:
-            return True
+        return request.user.is_superuser or obj.author == request.user
 
-        # Check if the user making the request is the author of the article
-        return obj.author == request.user
+    def has_permission(self, request, view):
+        return request.user.is_superuser
