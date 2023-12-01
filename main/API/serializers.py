@@ -12,6 +12,7 @@ class TopicSerializer(serializers.ModelSerializer):
 
 
 class ArticleSerializer(serializers.ModelSerializer):
+    # add hyperlinked serializer
     topics = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
@@ -21,7 +22,6 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    article = serializers.StringRelatedField()
 
     class Meta:
         model = Comment

@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from main.API.permissions import IsAuthorOrAdmin, IsAuthorOrReadOnly, IsProfileOwner
+from main.API.permissions import IsAuthorOrAdmin, IsProfileOwner
 from main.API.serializers import ArticleSerializer, TopicSerializer, CommentSerializer, UserSerializer, \
     UserProfileSerializer, UserRegisterSerializer, UserSetPasswordSerializer
 from main.models import Article, Topic, Comment, UserTokenAuthentication
@@ -29,7 +29,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-class CommentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class CommentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
@@ -38,7 +38,7 @@ class CommentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewset
         if self.action in ['create']:
             permission_classes = [IsAuthenticated]
         elif self.action in ['destroy']:
-            permission_classes = [IsAuthorOrAdmin]
+            permission_classes = [IsAdminUser]
         else:
             permission_classes = []
         return [permission() for permission in permission_classes]
@@ -73,7 +73,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['create', 'set_password']:
-            permission_classes = [AllowAny]
+            permission_classes = []
         elif self.action in ['list']:
             permission_classes = [IsAdminUser]
         else:
