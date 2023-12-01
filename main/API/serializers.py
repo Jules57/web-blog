@@ -52,7 +52,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     topics = TopicSerializer(many=True, source='preferred_topics')
-    articles = ArticleSerializer(many=True, source='articles')
+    articles = ArticleSerializer(many=True)
 
     class Meta:
         model = User

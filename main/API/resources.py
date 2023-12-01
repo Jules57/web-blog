@@ -2,11 +2,11 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from rest_framework import viewsets, mixins, status, views
 from rest_framework.decorators import action, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from main.API.permissions import IsAuthorOrAdmin
+from main.API.permissions import IsAuthorOrAdmin, IsAuthorOrReadOnly, IsProfileOwner
 from main.API.serializers import ArticleSerializer, TopicSerializer, CommentSerializer, UserSerializer, \
     UserProfileSerializer, UserRegisterSerializer, UserSetPasswordSerializer
 from main.models import Article, Topic, Comment, UserTokenAuthentication
@@ -15,7 +15,7 @@ from main.models import Article, Topic, Comment, UserTokenAuthentication
 class ArticleViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
-    permission_classes = [IsAuthenticated, IsAuthorOrAdmin]
+    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -56,9 +56,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['create', 'set_password']:
-            permission_classes = []
+            permission_classes = [AllowAny]
+        elif self.action in ['list']:
+            permission_classes = [IsAdminUser]
         else:
-            permission_classes = [IsAuthorOrAdmin]
+            permission_classes = [IsProfileOwner]
         return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):
