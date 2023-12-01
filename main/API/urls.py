@@ -13,6 +13,10 @@ router.register(r'users', UserViewSet)
 urlpatterns = router.urls
 
 urlpatterns = [
+    # path('articles/{article_id}/comment/', CommentViewSet.as_view({
+    #     'get': 'list',
+    #     'post': 'create',
+    #     'delete': 'destroy'})),
     path('', include(router.urls)),
     path('login/', obtain_auth_token),
     path('logout/', LogoutApiView.as_view()),

@@ -15,7 +15,15 @@ from main.models import Article, Topic, Comment, UserTokenAuthentication
 class ArticleViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
-    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
+
+    def get_permissions(self):
+        if self.action in ['create']:
+            permission_classes = [IsAuthenticated]
+        elif self.action in ['update', 'destroy', 'partial_update']:
+            permission_classes = [IsAuthorOrAdmin]
+        else:
+            permission_classes = []
+        return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -24,7 +32,16 @@ class ArticleViewSet(viewsets.ModelViewSet):
 class CommentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated, IsAuthorOrAdmin]
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['create']:
+            permission_classes = [IsAuthenticated]
+        elif self.action in ['destroy']:
+            permission_classes = [IsAuthorOrAdmin]
+        else:
+            permission_classes = []
+        return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
