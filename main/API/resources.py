@@ -1,26 +1,32 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from rest_framework import viewsets, mixins, status, views
-from rest_framework.decorators import action, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from main.API.permissions import IsAuthorOrAdmin, IsProfileOwner
-from main.API.serializers import ArticleSerializer, TopicSerializer, CommentWriteSerializer, UserSerializer, \
-    UserProfileSerializer, UserRegisterSerializer, UserSetPasswordSerializer
+from main.API.permissions import IsAuthorOrAdmin, IsProfileOwner, IsAuthorOrReadOnly
+from main.API.serializers import TopicSerializer, CommentWriteSerializer, UserSerializer, \
+    UserProfileSerializer, UserRegisterSerializer, UserSetPasswordSerializer, CommentReadSerializer, \
+    ArticleWriteSerializer, ArticleReadSerializer
 from main.models import Article, Topic, Comment, UserTokenAuthentication
 
 
 class ArticleViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
-    serializer_class = ArticleSerializer
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PUT', 'PATCH', 'DELETE']:
+            return ArticleWriteSerializer
+        elif self.request.method == 'GET':
+            return ArticleReadSerializer
 
     def get_permissions(self):
         if self.action in ['create']:
             permission_classes = [IsAuthenticated]
         elif self.action in ['update', 'destroy', 'partial_update']:
-            permission_classes = [IsAuthorOrAdmin]
+            permission_classes = [IsAuthorOrReadOnly]
         else:
             permission_classes = []
         return [permission() for permission in permission_classes]
@@ -29,10 +35,16 @@ class ArticleViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-class CommentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+class CommentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
+                     viewsets.GenericViewSet):
     queryset = Comment.objects.all()
-    serializer_class = CommentWriteSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method == 'DELETE':
+            return CommentWriteSerializer
+        elif self.request.method == 'GET':
+            return CommentReadSerializer
 
     def get_permissions(self):
         if self.action in ['create']:

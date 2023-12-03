@@ -35,14 +35,22 @@ class CommentWriteSerializer(serializers.ModelSerializer):
         read_only_fields = ['author']
 
 
-class ArticleSerializer(serializers.ModelSerializer):
+class ArticleWriteSerializer(serializers.ModelSerializer):
+    topics = serializers.PrimaryKeyRelatedField(queryset=Topic.objects.all(), many=True)
+
+    class Meta:
+        model = Article
+        fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'topics']
+        read_only = ['author']
+
+
+class ArticleReadSerializer(serializers.ModelSerializer):
     comments = CommentReadSerializer(many=True, read_only=True)
     topics = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Article
-        fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'comments', 'topics']
-        read_only_fields = ['author']
+        fields = ['id', 'author', 'title', 'content', 'created_at', 'updated_at', 'comments', 'topics']
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -68,7 +76,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     topics = TopicSerializer(many=True, source='preferred_topics')
-    articles = ArticleSerializer(many=True)
+    articles = ArticleReadSerializer(many=True)
 
     class Meta:
         model = User
