@@ -5,27 +5,43 @@ from rest_framework.exceptions import ValidationError
 from main.models import Article, Comment, Topic
 
 
+class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'email']
+
+
 class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
         fields = ['id', 'title', 'description', 'subscribers']
 
 
-class ArticleSerializer(serializers.ModelSerializer):
-    # add hyperlinked serializer
-    topics = serializers.StringRelatedField(many=True, read_only=True)
+class CommentReadSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
 
     class Meta:
-        model = Article
-        fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'topics']
-        read_only_fields = ['author']
+        model = Comment
+        fields = ['id', 'message', 'created_at', 'author']
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class CommentWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
         fields = ['id', 'message', 'article', 'created_at']
+        read_only_fields = ['author']
+
+
+class ArticleSerializer(serializers.ModelSerializer):
+    comments = CommentReadSerializer(many=True, read_only=True)
+    topics = serializers.StringRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = Article
+        fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'comments', 'topics']
         read_only_fields = ['author']
 
 
@@ -74,11 +90,3 @@ class UserSetPasswordSerializer(serializers.ModelSerializer):
         if attrs['new_password'] != attrs['new_password2']:
             raise ValidationError("New passwords are different")
         return attrs
-
-
-class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email']

@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
 from main.API.permissions import IsAuthorOrAdmin, IsProfileOwner
-from main.API.serializers import ArticleSerializer, TopicSerializer, CommentSerializer, UserSerializer, \
+from main.API.serializers import ArticleSerializer, TopicSerializer, CommentWriteSerializer, UserSerializer, \
     UserProfileSerializer, UserRegisterSerializer, UserSetPasswordSerializer
 from main.models import Article, Topic, Comment, UserTokenAuthentication
 
@@ -31,7 +31,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+    serializer_class = CommentWriteSerializer
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
