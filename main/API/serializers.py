@@ -19,6 +19,10 @@ class TopicSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'subscribers']
 
 
+class TopicSubscriptionSerializer(serializers.Serializer):
+    subscribe = serializers.BooleanField(required=True)
+
+
 class CommentReadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
 
