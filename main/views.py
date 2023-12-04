@@ -74,7 +74,8 @@ class ArticleDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'article'
     login_url = reverse_lazy('main:login')
     extra_context = {
-        'comment_form': CommentCreateForm()}
+        'comment_form': CommentCreateForm()
+    }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -102,23 +103,19 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         article = self.object.article
         return article.get_absolute_url()
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update({
-            'request': self.request,
-            'article_id': self.kwargs['article_id'],
-            'user': self.request.user
-        })
-        return kwargs
+    # def get_form_kwargs(self):
+    #     kwargs = super().get_form_kwargs()
+    #     kwargs.update({
+    #         'article_id': self.kwargs['article_id'],
+    #     })
+    #     return kwargs
 
     def form_invalid(self, form):
         return HttpResponseRedirect(self.success_url)
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        obj.article = Article.objects.get(pk=form.article_id)
-        obj.author = form.user
-        obj.message = form.cleaned_data['message']
+        obj.author = self.request.user
         obj.save()
         messages.success(self.request, f'Your comment has been successfully added.')
         return super().form_valid(form=form)

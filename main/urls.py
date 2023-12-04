@@ -8,9 +8,8 @@ from .views import UserPasswordChangeView, UserDeleteView
 
 app_name = 'main'
 
-
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('api/', include('main.API.urls')),
     path('', ArticleListView.as_view(), name='home_page'),
     path('about/', AboutView.as_view(), name='about_page'),
     path('<int:article_id>/', ArticleDetailView.as_view(), name='article_detail'),

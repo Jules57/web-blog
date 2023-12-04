@@ -16,4 +16,5 @@ def render_article(obj):
         'content': content,
         'created_at': created,
         'topics': topics,
-        'comments': comments}
+        'comments': comments
+    }
