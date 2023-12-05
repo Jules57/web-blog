@@ -103,13 +103,6 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         article = self.object.article
         return article.get_absolute_url()
 
-    # def get_form_kwargs(self):
-    #     kwargs = super().get_form_kwargs()
-    #     kwargs.update({
-    #         'article_id': self.kwargs['article_id'],
-    #     })
-    #     return kwargs
-
     def form_invalid(self, form):
         return HttpResponseRedirect(self.success_url)
 
@@ -181,7 +174,6 @@ class ArticleDeleteView(LoginRequiredMixin, DeleteView):
 
 
 class TopicSubscribeView(LoginRequiredMixin, UpdateView):
-    # template_name = 'main/topic/topic_subscribe.html'
     login_url = reverse_lazy('main:login')
     model = Topic
     pk_url_kwarg = 'topic_id'
