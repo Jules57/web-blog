@@ -29,7 +29,7 @@ class Topic(models.Model):
     subscribers = models.ManyToManyField(User, related_name='preferred_topics', through='Preference')
 
     def __str__(self):
-        return f'{self.title} with ID {self.pk}'
+        return f'{self.title}'
 
 
 class Preference(models.Model):

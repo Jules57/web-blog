@@ -28,12 +28,6 @@ class CommentCreateForm(forms.ModelForm):
             "article": forms.HiddenInput()
         }
 
-    # def __init__(self, *args, **kwargs):
-    #
-    #     if 'article_id' in kwargs:
-    #         self.article_id = kwargs.pop('article_id')
-    #     super(CommentCreateForm, self).__init__(*args, **kwargs)
-
 
 class SearchForm(forms.Form):
     search_query = forms.CharField(max_length=100, label='Search', widget=forms.TextInput)
