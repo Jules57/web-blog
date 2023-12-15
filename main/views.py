@@ -23,6 +23,10 @@ class Register(CreateView):
         login(self.request, self.object)
         return response
 
+    # def form_invalid(self, form):
+    #     self.object = None
+    #     return super().form_invalid(form)
+
 
 class Login(LoginView):
     template_name = 'main/user/login.html'

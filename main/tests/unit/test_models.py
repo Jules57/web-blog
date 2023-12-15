@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from main.models import Article, Comment, Topic, Preference
+from main.models import Article, Comment, Topic
 
 
 class ArticleTestCase(TestCase):

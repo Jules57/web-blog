@@ -1,6 +1,5 @@
 from django.urls import path, include
 
-from .API.urls import router
 from .views import AboutView, ArticleDetailView, TopicListView, ArticleListView, CommentCreateView, CommentDeleteView, \
     ArticleCreateView, ArticleUpdateView, Login, Register, Logout, UserDetailView, UserUpdateView
 from .views import ArticleDeleteView, TopicSubscribeView, TopicUnsubscribeView
