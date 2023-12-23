@@ -1,0 +1,24 @@
+name: Django CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [ 3.9 ]
+    steps:
+      - name: deploy command
+        uses: JimCronqvist/action-ssh@master
+        with:
+          command: |
+            source venv/bin/activate
+            cd web-blog-python8; git pull
+            python manage.py collectstatic --no-input
+            sudo systemctl restart gunicorn; sudo systemctl restart nginx
+          hosts: ${{ secrets.HOST }}
+          privateKey: ${{ secrets.PRIVATE_KEY}}
