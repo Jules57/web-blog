@@ -92,7 +92,7 @@ class TopicListView(ListView):
     context_object_name = 'topics'
     model = Topic
     template_name = 'main/topic/topic_list.html'
-    paginate_by = 6
+    paginate_by = 7
     extra_context = {'form': TopicSubscriptionForm}
 
 
